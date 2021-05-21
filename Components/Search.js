@@ -1,61 +1,82 @@
 import React from "react"
-import {StyleSheet, View, Button, TextInput, Alert } from "react-native"
+import {StyleSheet, View, Button, TextInput, FlatList, Text} from "react-native"
+import films from '../Helpers/FilmData'
+import FilmItem from './FilmItem'
+import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi.js'
 
 class Search extends React.Component {
+
   constructor(props) {
       super(props);
-      this.state = {inputValue: ""};
-      /*this.handleChange = this.handleChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);*/
+      this.state = {
+        films: [],
+        searchedText: "" // Initialisation de notre donnée searchedText dans le state
+      };
   }
 
-  handleChange(event) {
-    this.setState({inputValue: event.target.value});
+  _searchTextInputChanged(text) {
+    this.setState({searchedText: text})
   }
 
-  handleSubmit(event) {
-    Alert.alert('A name was submitted: ' + this.state.inputValue);
-    event.preventDefault();
+  _loadFilms() {
+    this.state.films = getFilmsFromApiWithSearchedText(this.state.searchedText).then(
+      data => {
+        this.setState({films : data})
+      })
   }
 
-  //const [text, setText] = useState('');
   render () {
-
     return (
-      <View style={styles.viewStyle}>
-        <TextInput onChange={e => this.handleChange(e)} style={styles.textInput}
-        autoFocus={true} placeholder="Rechercher un film"/>
-        <Button title="Rechercher" onPress = { e => { this.handleSubmit(e) } } style={styles.buttonStyle}/>
+      <View style={styles.main_container}>
+        <View style={styles.search_container}>
+          <TextInput style={styles.textinput}
+            autoFocus={true} placeholder="Titre du film"
+            onChangeText={(text)=> this._searchTextInputChanged(text)}/>
+          <Button style={styles.buttoninput} title="Rechercher" onPress = { () => {this._loadFilms();} } />
+        </View>
+        <View style={styles.list_container}>
+          <FlatList
+            data={films}
+            keyExtractor={(item) => {item.id.toString()}}
+            renderItem={({item}) => <FilmItem film={item}/>}
+          />
+        </View>
       </View>
     );
   }
 }
 
-const values = {
-  inputValue : ""
-};
-
 const styles = StyleSheet.create ({
-  viewStyle : {
+  main_container : {
     flex : 1,
-    flexDirection : 'row',
-    alignItems : 'flex-start',
-    justifyContent: 'space-between',
+    flexDirection : 'column',
+    padding : 5
+  },
+  search_container : {
+    flexDirection : 'column', // default
+    justifyContent: 'center',
+    alignContent : 'center', // defines the alignment along the cross-axis.
+    borderWidth : 1,
+    marginBottom : 10
+  },
+
+  list_container : {
     borderColor:'#c0c0c0',
     borderWidth:1,
     padding : 5
   },
-  textInput : {
-    flex : 1,
-    marginRight: 10,
+
+  textinput : {
     height:35,
+    marginBottom : 5,
     borderWidth:.5,
     borderColor:'#c0c0c0',
-    paddingLeft:10
   },
-  buttonStyle : {
-    flex : 1,
-    height: 60,
+
+  buttoninput : {
+    height:35,
+    borderWidth:.5,
+    borderColor:'#c0c0c0'
   }
 })
 
