@@ -1,6 +1,6 @@
 import React from "react"
 import {StyleSheet, View, Button, TextInput, FlatList, Text} from "react-native"
-import films from '../Helpers/FilmData'
+// import films from '../Helpers/FilmData'
 import FilmItem from './FilmItem'
 import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi.js'
 
@@ -8,6 +8,7 @@ class Search extends React.Component {
 
   constructor(props) {
       super(props);
+      this._films = [];
       this.state = {
         films: [],
         searchedText: "" // Initialisation de notre donnée searchedText dans le state
@@ -19,10 +20,17 @@ class Search extends React.Component {
   }
 
   _loadFilms() {
+
     this.state.films = getFilmsFromApiWithSearchedText(this.state.searchedText).then(
       data => {
-        this.setState({films : data})
-      })
+        // console.log(data);
+        this.setState({films : data});
+        this._films = data.results;
+        // debugger;
+        console.log("this films" + this._films);
+        this.forceUpdate();
+        // debugger;
+      });
   }
 
   render () {
@@ -32,13 +40,17 @@ class Search extends React.Component {
           <TextInput style={styles.textinput}
             autoFocus={true} placeholder="Titre du film"
             onChangeText={(text)=> this._searchTextInputChanged(text)}/>
-          <Button style={styles.buttoninput} title="Rechercher" onPress = { () => {this._loadFilms();} } />
+
+          <View style={styles.button_view}>
+            <Button style={styles.buttoninput} title="Rechercher" onPress = { (event) => {this._loadFilms()} } />
+          </View>
         </View>
+
         <View style={styles.list_container}>
           <FlatList
-            data={films}
-            keyExtractor={(item) => {item.id.toString()}}
+            data={this._films}
             renderItem={({item}) => <FilmItem film={item}/>}
+            keyExtractor={(item) => {item.id.toString()}}
           />
         </View>
       </View>
@@ -52,31 +64,32 @@ const styles = StyleSheet.create ({
     flexDirection : 'column',
     padding : 5
   },
-  search_container : {
-    flexDirection : 'column', // default
-    justifyContent: 'center',
-    alignContent : 'center', // defines the alignment along the cross-axis.
-    borderWidth : 1,
-    marginBottom : 10
-  },
 
   list_container : {
-    borderColor:'#c0c0c0',
-    borderWidth:1,
     padding : 5
   },
 
+  search_container : {
+    flexDirection : 'row',
+    justifyContent: 'space-between',
+    alignContent : 'center',
+    marginBottom : 10
+  },
+
   textinput : {
-    height:35,
-    marginBottom : 5,
+    flex : 0.7,
     borderWidth:.5,
     borderColor:'#c0c0c0',
+    paddingLeft : 10,
+    marginRight : 10,
+  },
+
+  button_view : {
+      flex : 0.3,
   },
 
   buttoninput : {
-    height:35,
-    borderWidth:.5,
-    borderColor:'#c0c0c0'
+    flex : 1,
   }
 })
 
