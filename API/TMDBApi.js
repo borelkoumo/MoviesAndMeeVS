@@ -10,3 +10,9 @@ export function getFilmsFromApiWithSearchedText  (text) {
       .then((response) => {return response.json()})
       .catch((error) => console.error(error));
 }
+
+// API/TMDBApi.js
+
+export function getImageFromApi (posterPath) {
+  return 'https://image.tmdb.org/t/p/w300' + posterPath
+}
