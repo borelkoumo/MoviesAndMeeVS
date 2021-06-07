@@ -2,7 +2,7 @@ import React from "react"
 import {StyleSheet, View, Button, TextInput, FlatList, Text, Image, ActivityIndicator} from "react-native"
 import films from '../Helpers/FilmData'
 import FilmItem from './FilmItem'
-import EmptyView from './EmptyView'
+import EmptyResultView from './EmptyResultView'
 import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi.js'
 
 class Search extends React.Component {
@@ -10,6 +10,8 @@ class Search extends React.Component {
   constructor(props) {
       super(props);
       this.searchedText = "";
+      this.currentPage = 0;
+      this.totalPages = 0;
       this.state = {
         films: [],
         isLoading : false,
@@ -20,21 +22,38 @@ class Search extends React.Component {
     this.searchedText = text;
   }
 
-  _loadFilms() {
+  _searchFilms () {
     if (this.searchedText.length > 0) {
-      this.setState({isLoading : true});
-      this.state.films = getFilmsFromApiWithSearchedText(this.searchedText).then(
-        data => {
-          // console.log(data);
-          this.setState({
-            films : data.results,
-            isLoading : false,
-          });
-        });
+      this.currentPage = 0;
+      this.totalPages = 0;
+      this.setState ({
+        films: [],
+      }, () => {
+        // debugger;
+        this._loadNextFilms();
+      });
     }
   }
 
-  _displayLoading() {
+  _loadNextFilms() {
+    this.setState ({
+      isLoading : true,
+    });
+
+    getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
+      data => {
+        console.log(data);
+        this.currentPage = data.page;
+        this.totalPages = data.total_pages;
+        this.setState({
+          films : [...this.state.films, ...data.results],
+          isLoading : false,
+        });
+      }
+    );
+  }
+
+  _displayLoadingView() {
       if (this.state.isLoading) {
         return (
           <View style={styles.loading_container}>
@@ -45,35 +64,51 @@ class Search extends React.Component {
       }
     }
 
-  render () {
-    // let searchContainer = ;
-    // console.log(this.state.films);
-    // console.log(this.state.films.length);
-    let searchView = <View style={styles.search_container}>
+  _getSearchView() {
+    return (<View style={styles.search_container}>
         <TextInput style={styles.textinput}
           autoFocus={true}
           returnKeyType="search"
           placeholder="Titre du film"
-          onSubmitEditing={() => this._loadFilms()}
+          onSubmitEditing={() => this._searchFilms()}
           onChangeText={(text)=> this._searchTextInputChanged(text)}/>
         <View style={styles.button_view}>
-          <Button style={styles.buttoninput} title="Rechercher" onPress = { (event) => {this._loadFilms()} } />
+          <Button
+            style={styles.buttoninput}
+            title="Rechercher"
+            onPress = {
+              (event) => {
+                this._searchFilms()
+              }
+            }
+          />
         </View>
-      </View>;
+      </View>);
+  }
+
+  render () {
+    // let searchContainer = ;
+    // console.log(this.state.films);
+    // console.log(this.state.films.length);
 
     if(this.state.films?.length != 0) {
       return (
         <View style={styles.main_container}>
-          {searchView}
-
+          {this._getSearchView()}
           <View style={styles.list_container}>
             <FlatList
               data={this.state.films}
               renderItem={({item}) => <FilmItem film={item}/>}
+              onEndReachedThreshold={0.5}
+              onEndReached={() => {
+                if(this.currentPage < this.totalPages) {
+                  this._loadNextFilms();
+                }
+              }}
               keyExtractor={(item, index) => {item.id.toString()}}
             />
           </View>
-          {this._displayLoading()}
+          {this._displayLoadingView()}
         </View>
       );
     }
@@ -81,9 +116,9 @@ class Search extends React.Component {
       // {debugger}
       return (
         <View style={styles.main_container}>
-          {searchView}
-          <EmptyView searchedText={this.searchedText}></EmptyView>
-          {this._displayLoading()}
+          {this._getSearchView()}
+          <EmptyResultView searchedText={this.searchedText}></EmptyResultView>
+          {this._displayLoadingView()}
         </View>
       );
     }

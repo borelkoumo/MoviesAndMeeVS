@@ -6,7 +6,11 @@ class FilmItem extends React.Component {
 
   render() {
     const film = this.props.film;
-    const releaseDate = new Date(this.props.film.release_date);
+    let releaseDate = "Indisponible";
+    if (this.props.film.release_date != "") {
+      let d = new Date(this.props.film.release_date);
+      releaseDate = d.getDate() + " / "+ d.getMonth() + " / "+d.getFullYear();
+    }
     return (
       <View style={styles.main_container}>
         <View style={styles.view_image}>
@@ -26,7 +30,7 @@ class FilmItem extends React.Component {
           <View style={styles.view_details_release_date}>
             <Text style={styles.release_date}>
               <Text style={styles.release_date_inner}>Date de Sortie : </Text>
-              Le {releaseDate.getDate()}/{releaseDate.getMonth()}/{releaseDate.getFullYear()}
+              {releaseDate}
             </Text>
           </View>
         </View>

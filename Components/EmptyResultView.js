@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, View, Text, Image} from 'react-native';
 
-class EmptyView extends React.Component {
+class EmptyResultView extends React.Component {
   constructor(){
     super();
   }
@@ -47,4 +47,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EmptyView;
+export default EmptyResultView;
