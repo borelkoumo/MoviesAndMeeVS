@@ -1,5 +1,5 @@
 import React from "react"
-import {StyleSheet, View, Button, TextInput, FlatList, Text, Image, ActivityIndicator} from "react-native"
+import {StyleSheet, View, Button, TextInput, FlatList, Text, Image, ActivityIndicator, Keyboard} from "react-native"
 import films from '../Helpers/FilmData'
 import FilmItem from './FilmItem'
 import EmptyResultView from './EmptyResultView'
@@ -26,6 +26,7 @@ class Search extends React.Component {
 
   _searchFilms () {
     if (this.searchedText.length > 0) {
+      Keyboard.dismiss();
       this.currentPage = 0;
       this.totalPages = 0;
       this.setState ({
@@ -34,10 +35,11 @@ class Search extends React.Component {
         existResult : false,
       }, () => {
         console.log('DANS _searchFilms et BEFORE _loadNextFilms');
-        setTimeout(()=>{
-          console.log('setTimeout(5000)')
-          this._loadNextFilms();
-        }, 2500);
+        this._loadNextFilms();
+        // setTimeout(()=>{
+        //   console.log('setTimeout(5000)')
+        //   this._loadNextFilms();
+        // }, 1500);
         console.log('DANS _searchFilms et APRES _loadNextFilms');
       });
     }
@@ -191,8 +193,8 @@ const styles = StyleSheet.create ({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor:'red',
+    // borderWidth: 3,
+    // borderColor:'red',
   },
 
 

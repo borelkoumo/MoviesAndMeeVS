@@ -1,9 +1,10 @@
 const API_KEY = "6e49329bbd9f02d58eb36c6e1e835418";
+const LANG = 'fr';
 
 export function getFilmsFromApiWithSearchedText  (text, page) {
-  const url = "https://api.themoviedb.org/3/search/movie?api_key="+
-    API_KEY
-    +"&language=fr"
+  const url = "https://api.themoviedb.org/3/search/movie?"
+    +"api_key="+API_KEY
+    +"&language="+LANG
     +"&query="+text
     +"&page="+page;
     console.log(url);
@@ -26,4 +27,22 @@ export function getImageFromApi (posterPath) {
   else {
     return null;
   }
+}
+
+export function getFilmDetailFromApi(filmID) {
+  const url = "https://api.themoviedb.org/3/movie/"
+    +filmID
+    +"?api_key="+API_KEY
+    +"&language="+LANG;
+    console.log(url);
+
+    return fetch(url)
+      .then((response) => {
+        const json = response.json();
+        console.log(json);
+        return json;
+      })
+      .catch((error) => {
+        console.log('Mon erreur dans getFilmsFromApiWithSearchedText= '+error)
+      });
 }
