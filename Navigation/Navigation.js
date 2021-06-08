@@ -1,5 +1,5 @@
 import {createAppContainer} from 'react-navigation';
-import {createStackNavigator} from 'react-navigation-stack';
+import {createStackNavigator} from '@react-navigation/native';
 import Search from "../Components/Search";
 import FilmDetail from '../Components/FilmDetail';
 
@@ -12,7 +12,7 @@ const SearchStackNavigator = createStackNavigator({
   },
   FilmDetail : {
     screen : FilmDetail
-  },  
+  },
 });
 
 export default createAppContainer(SearchStackNavigator);

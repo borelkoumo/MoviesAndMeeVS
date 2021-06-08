@@ -15,6 +15,7 @@ class Search extends React.Component {
       this.state = {
         films: [],
         isLoading : false,
+        existResult : false,
       };
   }
 
@@ -30,6 +31,7 @@ class Search extends React.Component {
       this.setState ({
         films: [],
         isLoading : true,
+        existResult : false,
       }, () => {
         console.log('DANS _searchFilms et BEFORE _loadNextFilms');
         this._loadNextFilms();
@@ -38,40 +40,28 @@ class Search extends React.Component {
     }
   }
 
-  _loadNextFilms() {
-    // this.setState ({
-    //   isLoading : true,
-    // }, () => {
-      console.log('DANS _loadNextFilms et BEFORE getFilmsFromApiWithSearchedText');
-      getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
-        (data) => {
-          //console.log('data = '+data);
-          this.currentPage = data.page;
-          this.totalPages = data.total_pages;
-          const films = [...this.state.films, ...data.results];
-          const existResult = films.length == 0 ? false : true;
-          console.log('this.currentPage = '+this.currentPage+'; this.totalPages='+this.totalPages+'; existResult='+existResult+'; films='+films);
-          // debugg er;
-          this.setState({
-            films : films,
-            isLoading : false,
-            existResult : existResult,
-          });
-        }
-      ).catch((error)=> {
-        console.log('Mon erreur dans _loadNextFilms= '+error)
-        this.setState({
-          films : [],
-          isLoading : false,
-          existResult : false,
-        });
-      });;
-    // });
-  }
 
-  _displayDetailFromFilm = (filmId) => {
-    console.log('_displayDetailForFilm ID = '+filmId);
-    // this.props.navigation.navigate("FilmDetail")
+  _loadNextFilms() {
+    console.log('DANS _loadNextFilms et BEFORE getFilmsFromApiWithSearchedText');
+    getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
+      (data) => {
+        //console.log('data = '+data);
+        this.currentPage = data.page;
+        this.totalPages = data.total_pages;
+        const films = [...this.state.films, ...data.results];
+        const existResult = films.length == 0 ? false : true;
+        console.log('this.currentPage = '+this.currentPage+'; this.totalPages='+this.totalPages+'; existResult='+existResult+'; films='+films);
+        // debugg er;
+        this.setState({
+          films : films,
+          isLoading : false,
+          existResult : existResult,
+        });
+      }
+    ).catch((error)=> {
+      console.log('Mon erreur dans _loadNextFilms= '+error)
+      this.setState({ films : [], isLoading : false, existResult : false, });
+    });;
   }
 
   _displayLoadingView() {
@@ -107,43 +97,45 @@ class Search extends React.Component {
       </View>);
   }
 
+  _displayDetailsForFilm = (filmID) => {
+    console.log('Display film with ID = '+filmID);
+    //xdebugger;
+    this.props.navigation.navigate("FilmDetail", {filmID : filmID})
+  };
+
   render () {
     console.log('rendering state /// isLoading='+this.state.isLoading);
+
     if(this.state.existResult) {
-        return (
-          <View style={styles.main_container}>
-            {this._getSearchView()}
-            <View style={styles.list_container}>
-              <FlatList
-                data={this.state.films}
-                renderItem={({item}) => <FilmItem film={item} displayDetailFromFilm={this._displayDetailFromFilm}/>}
-                onEndReachedThreshold={0.5}
-                onEndReached={() => {
-                  if(this.currentPage < this.totalPages) {
-                    this._loadNextFilms();
-                  }
-                }}
-                keyExtractor={(item, index) => {item.id.toString()}}
-              />
-            </View>
-            {this._displayLoadingView()}
+      return (
+        <View style={styles.main_container}>
+          {this._getSearchView()}
+          <View style={styles.list_container}>
+            <FlatList
+              data={this.state.films}
+              renderItem={({item}) =>
+                <FilmItem film={item} displayDetailsForFilm={this._displayDetailsForFilm}/>
+              }
+              onEndReachedThreshold={0.8}
+              onEndReached={() => {
+                if(this.currentPage < this.totalPages) {
+                  this._loadNextFilms();
+                }
+              }}
+              keyExtractor={(item, index) => {item.id.toString()}}
+            />
           </View>
-        );
+        </View>
+      );
     }
     else {
+      //debugger;
       return (
         <View style={styles.main_container}>
           {this._getSearchView()}
           {this._displayLoadingView()}
         </View>
       );
-      // return (
-      //   <View style={styles.main_container}>
-      //     {this._getSearchView()}
-      //     {this._displayLoadingView()}
-      //     <EmptyResultView searchedText={this.searchedText}></EmptyResultView>
-      //   </View>
-      // );
     }
   }
 }

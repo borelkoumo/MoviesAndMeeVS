@@ -7,9 +7,11 @@ class FilmDetail extends React.Component {
   }
 
   render() {
+    //debugger;
+    const filmID = this.props.route.params.filmID;
     return (
       <View style={styles.main_style}>
-        <Text>Details du Film</Text>
+        <Text>Details du Film : {filmID}</Text>
       </View>
     );
   }
