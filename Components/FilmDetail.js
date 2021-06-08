@@ -7,7 +7,7 @@ class FilmDetail extends React.Component {
   }
 
   render() {
-    debugger;
+    //debugger;
     const filmID = this.props.route.params.filmID;
     return (
       <View style={styles.main_style}>

@@ -15,12 +15,25 @@ class Search extends React.Component {
       this.state = {
         films: [],
         isLoading : false,
+        existResult : false,
       };
   }
 
   _searchTextInputChanged(text) {
     this.searchedText = text;
   }
+  //
+  // _searchFilms () {
+  //   if (this.searchedText.length > 0) {
+  //     this.currentPage = 0;
+  //     this.totalPages = 0;
+  //     this.setState ({
+  //       films: [],
+  //     }, () => {
+  //       this._loadNextFilms();
+  //     });
+  //   }
+  // }
 
   _searchFilms () {
     if (this.searchedText.length > 0) {
@@ -28,28 +41,60 @@ class Search extends React.Component {
       this.totalPages = 0;
       this.setState ({
         films: [],
+        isLoading : true,
+        existResult : false,
       }, () => {
+        console.log('DANS _searchFilms et BEFORE _loadNextFilms');
         this._loadNextFilms();
+        console.log('DANS _searchFilms et APRES _loadNextFilms');
       });
     }
   }
+  //
+  // _loadNextFilms() {
+  //   this.setState ({
+  //     isLoading : true,
+  //   }, () => {
+  //     getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
+  //       data => {
+  //         console.log(data);
+  //         this.currentPage = data.page;
+  //         this.totalPages = data.total_pages;
+  //         this.setState({
+  //           isLoading : false,
+  //           films : [...this.state.films, ...data.results],
+  //         });
+  //       }
+  //     );
+  //   });
+  // }
+
 
   _loadNextFilms() {
-    this.setState ({
-      isLoading : true,
-    }, () => {
-      getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
-        data => {
-          console.log(data);
-          this.currentPage = data.page;
-          this.totalPages = data.total_pages;
-          this.setState({
-            isLoading : false,
-            films : [...this.state.films, ...data.results],
-          });
-        }
-      );
-    });
+    console.log('DANS _loadNextFilms et BEFORE getFilmsFromApiWithSearchedText');
+    getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
+      (data) => {
+        //console.log('data = '+data);
+        this.currentPage = data.page;
+        this.totalPages = data.total_pages;
+        const films = [...this.state.films, ...data.results];
+        const existResult = films.length == 0 ? false : true;
+        console.log('this.currentPage = '+this.currentPage+'; this.totalPages='+this.totalPages+'; existResult='+existResult+'; films='+films);
+        // debugg er;
+        this.setState({
+          films : films,
+          isLoading : false,
+          existResult : existResult,
+        });
+      }
+    ).catch((error)=> {
+      console.log('Mon erreur dans _loadNextFilms= '+error)
+      this.setState({
+        films : [],
+        isLoading : false,
+        existResult : false,
+      });
+    });;
   }
 
   _displayLoadingView() {
@@ -57,7 +102,6 @@ class Search extends React.Component {
         return (
           <View style={styles.loading_container}>
             <ActivityIndicator size='large' />
-            {}
           </View>
         )
       }
@@ -92,11 +136,9 @@ class Search extends React.Component {
   }
 
   render () {
-    // let searchContainer = ;
-    // console.log(this.state.films);
-    // console.log(this.state.films.length);
+    console.log('rendering state /// isLoading='+this.state.isLoading);
 
-    if(this.state.films?.length != 0) {
+    if(this.state.existResult) {
       return (
         <View style={styles.main_container}>
           {this._getSearchView()}
@@ -120,11 +162,10 @@ class Search extends React.Component {
       );
     }
     else {
-      // {debugger}
+      //debugger;
       return (
         <View style={styles.main_container}>
-          {this._getSearchView()}
-          <EmptyResultView searchedText={this.searchedText}></EmptyResultView>
+          {this._getSearchView()} 
           {this._displayLoadingView()}
         </View>
       );
