@@ -7,6 +7,7 @@ export function getFilmsFromApiWithSearchedText  (text, page) {
     +"&query="+text
     +"&page="+page;
     console.log(url);
+
     return fetch(url)
       .then((response) => {
         const json = response.json();
@@ -15,11 +16,8 @@ export function getFilmsFromApiWithSearchedText  (text, page) {
       })
       .catch((error) => {
         console.log('Mon erreur dans getFilmsFromApiWithSearchedText= '+error)
-        // return null;
       });
 }
-
-// API/TMDBApi.js
 
 export function getImageFromApi (posterPath) {
   if(posterPath) {

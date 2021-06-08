@@ -34,7 +34,10 @@ class Search extends React.Component {
         existResult : false,
       }, () => {
         console.log('DANS _searchFilms et BEFORE _loadNextFilms');
-        this._loadNextFilms();
+        setTimeout(()=>{
+          console.log('setTimeout(5000)')
+          this._loadNextFilms();
+        }, 2500);
         console.log('DANS _searchFilms et APRES _loadNextFilms');
       });
     }
@@ -50,6 +53,7 @@ class Search extends React.Component {
         this.totalPages = data.total_pages;
         const films = [...this.state.films, ...data.results];
         const existResult = films.length == 0 ? false : true;
+
         console.log('this.currentPage = '+this.currentPage+'; this.totalPages='+this.totalPages+'; existResult='+existResult+'; films='+films);
         // debugg er;
         this.setState({
@@ -65,14 +69,15 @@ class Search extends React.Component {
   }
 
   _displayLoadingView() {
-      if (this.state.isLoading) {
-        return (
-          <View style={styles.loading_container}>
-            <ActivityIndicator size='large' />
-          </View>
-        )
-      }
+    console.log('_displayLoadingView');
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.loading_container}>
+          <ActivityIndicator size='large' color="#999999"/>
+        </View>
+      )
     }
+  }
 
   _getSearchView() {
     return (
@@ -99,7 +104,7 @@ class Search extends React.Component {
 
   _displayDetailsForFilm = (filmID) => {
     console.log('Display film with ID = '+filmID);
-    //xdebugger;
+    //debugger;
     this.props.navigation.navigate("FilmDetail", {filmID : filmID})
   };
 
@@ -185,8 +190,12 @@ const styles = StyleSheet.create ({
     top: 100,
     bottom: 0,
     alignItems: 'center',
-    justifyContent: 'center'
- },
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor:'red',
+  },
+
+
 
 })
 
