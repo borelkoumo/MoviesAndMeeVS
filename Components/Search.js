@@ -29,7 +29,6 @@ class Search extends React.Component {
       this.setState ({
         films: [],
       }, () => {
-        // debugger;
         this._loadNextFilms();
       });
     }
@@ -38,19 +37,19 @@ class Search extends React.Component {
   _loadNextFilms() {
     this.setState ({
       isLoading : true,
+    }, () => {
+      getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
+        data => {
+          console.log(data);
+          this.currentPage = data.page;
+          this.totalPages = data.total_pages;
+          this.setState({
+            isLoading : false,
+            films : [...this.state.films, ...data.results],
+          });
+        }
+      );
     });
-
-    getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
-      data => {
-        console.log(data);
-        this.currentPage = data.page;
-        this.totalPages = data.total_pages;
-        this.setState({
-          films : [...this.state.films, ...data.results],
-          isLoading : false,
-        });
-      }
-    );
   }
 
   _displayLoadingView() {
@@ -86,6 +85,12 @@ class Search extends React.Component {
       </View>);
   }
 
+  _displayDetailsForFilm = (filmID) => {
+    console.log('Display film with ID = '+filmID);
+    //xdebugger;
+    this.props.navigation.navigate("FilmDetail", {filmID : filmID})
+  }
+
   render () {
     // let searchContainer = ;
     // console.log(this.state.films);
@@ -98,8 +103,10 @@ class Search extends React.Component {
           <View style={styles.list_container}>
             <FlatList
               data={this.state.films}
-              renderItem={({item}) => <FilmItem film={item}/>}
-              onEndReachedThreshold={0.5}
+              renderItem={({item}) =>
+                <FilmItem film={item} displayDetailsForFilm={this._displayDetailsForFilm}/>
+              }
+              onEndReachedThreshold={0.8}
               onEndReached={() => {
                 if(this.currentPage < this.totalPages) {
                   this._loadNextFilms();

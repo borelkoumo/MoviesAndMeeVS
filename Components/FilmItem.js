@@ -1,18 +1,25 @@
 import React from "react"
-import {StyleSheet, View, Text, Image } from "react-native"
+import {StyleSheet, View, Text, Image, TouchableOpacity } from "react-native"
 import {getImageFromApi} from '../API/TMDBApi.js'
 
 class FilmItem extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
   render() {
-    const film = this.props.film;
+    const {film, displayDetailsForFilm} = this.props;
+    //debugger;
     let releaseDate = "Indisponible";
-    if (this.props.film.release_date != "") {
-      let d = new Date(this.props.film.release_date);
+    if (film.release_date != "") {
+      let d = new Date(film.release_date);
       releaseDate = d.getDate() + " / "+ d.getMonth() + " / "+d.getFullYear();
     }
+
+    const filmID = film.id;
+
     return (
-      <View style={styles.main_container}>
+      <TouchableOpacity style={styles.main_container} onPress={() => displayDetailsForFilm(filmID)}>
         <View style={styles.view_image}>
           <Image style={styles.image} source={{uri : getImageFromApi(film.poster_path)}} />
         </View>
@@ -34,7 +41,7 @@ class FilmItem extends React.Component {
             </Text>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 };
