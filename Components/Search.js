@@ -19,6 +19,7 @@ class Search extends React.Component {
   }
 
   _searchTextInputChanged(text) {
+    console.log('_searchTextInputChanged = '+text);
     this.searchedText = text;
   }
 
@@ -28,29 +29,49 @@ class Search extends React.Component {
       this.totalPages = 0;
       this.setState ({
         films: [],
+        isLoading : true,
       }, () => {
-        // debugger;
+        console.log('DANS _searchFilms et BEFORE _loadNextFilms');
         this._loadNextFilms();
+        console.log('DANS _searchFilms et APRES _loadNextFilms');
       });
     }
   }
 
   _loadNextFilms() {
-    this.setState ({
-      isLoading : true,
-    });
-
-    getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
-      data => {
-        console.log(data);
-        this.currentPage = data.page;
-        this.totalPages = data.total_pages;
+    // this.setState ({
+    //   isLoading : true,
+    // }, () => {
+      console.log('DANS _loadNextFilms et BEFORE getFilmsFromApiWithSearchedText');
+      getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
+        (data) => {
+          //console.log('data = '+data);
+          this.currentPage = data.page;
+          this.totalPages = data.total_pages;
+          const films = [...this.state.films, ...data.results];
+          const existResult = films.length == 0 ? false : true;
+          console.log('this.currentPage = '+this.currentPage+'; this.totalPages='+this.totalPages+'; existResult='+existResult+'; films='+films);
+          // debugg er;
+          this.setState({
+            films : films,
+            isLoading : false,
+            existResult : existResult,
+          });
+        }
+      ).catch((error)=> {
+        console.log('Mon erreur dans _loadNextFilms= '+error)
         this.setState({
-          films : [...this.state.films, ...data.results],
+          films : [],
           isLoading : false,
+          existResult : false,
         });
-      }
-    );
+      });;
+    // });
+  }
+
+  _displayDetailFromFilm = (filmId) => {
+    console.log('_displayDetailForFilm ID = '+filmId);
+    // this.props.navigation.navigate("FilmDetail")
   }
 
   _displayLoadingView() {
@@ -58,14 +79,14 @@ class Search extends React.Component {
         return (
           <View style={styles.loading_container}>
             <ActivityIndicator size='large' />
-            {}
           </View>
         )
       }
     }
 
   _getSearchView() {
-    return (<View style={styles.search_container}>
+    return (
+      <View style={styles.search_container}>
         <TextInput style={styles.textinput}
           autoFocus={true}
           returnKeyType="search"
@@ -87,42 +108,43 @@ class Search extends React.Component {
   }
 
   render () {
-    // let searchContainer = ;
-    // console.log(this.state.films);
-    // console.log(this.state.films.length);
-
-    if(this.state.films?.length != 0) {
-      return (
-        <View style={styles.main_container}>
-          {this._getSearchView()}
-          <View style={styles.list_container}>
-            <FlatList
-              data={this.state.films}
-              renderItem={({item}) => <FilmItem film={item}/>}
-              onEndReachedThreshold={0.5}
-              onEndReached={() => {
-                if(this.currentPage < this.totalPages) {
-                  this._loadNextFilms();
-                }
-              }}
-              keyExtractor={(item, index) => {item.id.toString()}}
-            />
+    console.log('rendering state /// isLoading='+this.state.isLoading);
+    if(this.state.existResult) {
+        return (
+          <View style={styles.main_container}>
+            {this._getSearchView()}
+            <View style={styles.list_container}>
+              <FlatList
+                data={this.state.films}
+                renderItem={({item}) => <FilmItem film={item} displayDetailFromFilm={this._displayDetailFromFilm}/>}
+                onEndReachedThreshold={0.5}
+                onEndReached={() => {
+                  if(this.currentPage < this.totalPages) {
+                    this._loadNextFilms();
+                  }
+                }}
+                keyExtractor={(item, index) => {item.id.toString()}}
+              />
+            </View>
+            {this._displayLoadingView()}
           </View>
-          {this._displayLoadingView()}
-        </View>
-      );
+        );
     }
     else {
-      // {debugger}
       return (
         <View style={styles.main_container}>
           {this._getSearchView()}
-          <EmptyResultView searchedText={this.searchedText}></EmptyResultView>
           {this._displayLoadingView()}
         </View>
       );
+      // return (
+      //   <View style={styles.main_container}>
+      //     {this._getSearchView()}
+      //     {this._displayLoadingView()}
+      //     <EmptyResultView searchedText={this.searchedText}></EmptyResultView>
+      //   </View>
+      // );
     }
-
   }
 }
 
@@ -176,4 +198,4 @@ const styles = StyleSheet.create ({
 
 })
 
-export default Search
+export default Search;

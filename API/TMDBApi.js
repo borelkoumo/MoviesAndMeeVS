@@ -9,15 +9,23 @@ export function getFilmsFromApiWithSearchedText  (text, page) {
     console.log(url);
     return fetch(url)
       .then((response) => {
-        return response.json()
-      }).catch((error) => {
-        return null;
-        console.error(error)
+        const json = response.json();
+        console.log(json);
+        return json;
+      })
+      .catch((error) => {
+        console.log('Mon erreur dans getFilmsFromApiWithSearchedText= '+error)
+        // return null;
       });
 }
 
 // API/TMDBApi.js
 
 export function getImageFromApi (posterPath) {
-  return 'https://image.tmdb.org/t/p/w300' + posterPath
+  if(posterPath) {
+    return 'https://image.tmdb.org/t/p/w300' + posterPath;
+  }
+  else {
+    return null;
+  }
 }
