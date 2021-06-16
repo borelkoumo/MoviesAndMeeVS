@@ -1,9 +1,13 @@
 import React from "react"
-import {StyleSheet, View, Button, TextInput, FlatList, Text, Image, ActivityIndicator, Keyboard} from "react-native"
-import films from '../Helpers/FilmData'
+import { StyleSheet, View, Button, TextInput, FlatList, Text, Image, ActivityIndicator, Keyboard } from "react-native"
 import FilmItem from './FilmItem'
 import EmptyResultView from './EmptyResultView'
+import SearchHome from './SearchHome'
 import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi.js'
+import { getSeparator } from './ListSeparator';
+
+const VIEWS = { 'HOME': 1, "RESULTS": 2, "RESULT_NOT_FOUND": 3 };
+Object.freeze(VIEWS);
 
 class Search extends React.Component {
 
@@ -14,9 +18,9 @@ class Search extends React.Component {
       this.totalPages = 0;
       this.state = {
         films: [],
-        isLoading : false,
-        existResult : false,
+        isLoading: false,
       };
+    this.displayView = VIEWS.HOME;
   }
 
   _searchTextInputChanged(text) {
@@ -31,8 +35,7 @@ class Search extends React.Component {
       this.totalPages = 0;
       this.setState ({
         films: [],
-        isLoading : true,
-        existResult : false,
+        isLoading: true,
       }, () => {
         console.log('DANS _searchFilms et BEFORE _loadNextFilms');
         this._loadNextFilms();
@@ -45,7 +48,6 @@ class Search extends React.Component {
     }
   }
 
-
   _loadNextFilms() {
     console.log('DANS _loadNextFilms et BEFORE getFilmsFromApiWithSearchedText');
     getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
@@ -55,23 +57,31 @@ class Search extends React.Component {
         this.totalPages = data.total_pages;
         const films = [...this.state.films, ...data.results];
         const existResult = films.length == 0 ? false : true;
-
-        console.log('this.currentPage = '+this.currentPage+'; this.totalPages='+this.totalPages+'; existResult='+existResult+'; films='+films);
-        // debugg er;
+        if (existResult) {
+          this.displayView = VIEWS.RESULTS;
+        }
+        else {
+          this.displayView = VIEWS.RESULT_NOT_FOUND;
+        }
+        console.log('this.currentPage = ' + this.currentPage + '; this.totalPages=' + this.totalPages + '; existResult=' + existResult + '; films=' + films);
         this.setState({
           films : films,
-          isLoading : false,
-          existResult : existResult,
+          isLoading: false,
         });
       }
     ).catch((error)=> {
       console.log('Mon erreur dans _loadNextFilms= '+error)
-      this.setState({ films : [], isLoading : false, existResult : false, });
+      this.setState({ films: [], isLoading: false, });
     });;
   }
 
-  _displayLoadingView() {
-    console.log('_displayLoadingView');
+  _displayDetailsForFilm = (filmID) => {
+    console.log('Display film with ID = ' + filmID);
+    this.props.navigation.navigate("FilmDetail", { filmID: filmID })
+  };
+
+  _renderLoadingView() {
+    console.log('_renderLoadingView');
     if (this.state.isLoading) {
       return (
         <View style={styles.loading_container}>
@@ -81,7 +91,7 @@ class Search extends React.Component {
     }
   }
 
-  _getSearchView() {
+  _renderSearchView() {
     return (
       <View style={styles.search_container}>
         <TextInput style={styles.textinput}
@@ -104,45 +114,70 @@ class Search extends React.Component {
       </View>);
   }
 
-  _displayDetailsForFilm = (filmID) => {
-    console.log('Display film with ID = '+filmID);
-    //debugger;
-    this.props.navigation.navigate("FilmDetail", {filmID : filmID})
-  };
+  _renderSearchHomeView = () => {
+    return <SearchHome searchedText={this.searchedText}></SearchHome>
+  }
 
-  render () {
-    console.log('rendering state /// isLoading='+this.state.isLoading);
+  _renderEmptyResultView = () => {
+    return <EmptyResultView searchedText={this.searchedText}></EmptyResultView>
+  }
 
-    if(this.state.existResult) {
-      return (
-        <View style={styles.main_container}>
-          {this._getSearchView()}
-          <View style={styles.list_container}>
-            <FlatList
-              data={this.state.films}
-              renderItem={({item}) =>
-                <FilmItem film={item} displayDetailsForFilm={this._displayDetailsForFilm}/>
-              }
-              onEndReachedThreshold={0.8}
-              onEndReached={() => {
-                if(this.currentPage < this.totalPages) {
-                  this._loadNextFilms();
-                }
-              }}
-              keyExtractor={(item, index) => {item.id.toString()}}
-            />
+  _renderResultView = () => {
+    return <View style={styles.list_container}>
+      <FlatList
+        style={styles.list_flat}
+        data={this.state.films}
+        renderItem={({ item }) =>
+          <FilmItem film={item} displayDetailsForFilm={this._displayDetailsForFilm} />
+        }
+        onEndReachedThreshold={0.8}
+        onEndReached={() => {
+          if (this.currentPage < this.totalPages) {
+            this._loadNextFilms();
+          }
+        }}
+        keyExtractor={(item, index) => { item.id.toString() }}
+        ItemSeparatorComponent={getSeparator}
+      />
+    </View>
+  }
+
+  render() {
+    console.log('rendering state /// isLoading=' + this.state.isLoading + 'displayView=' + this.displayView);
+
+    switch (this.displayView) {
+      case VIEWS.HOME:
+        return (
+          <View style={styles.main_container}>
+            {this._renderSearchView()}
+            {this._renderSearchHomeView()}
+            {this._renderLoadingView()}
           </View>
-        </View>
-      );
-    }
-    else {
-      //debugger;
-      return (
-        <View style={styles.main_container}>
-          {this._getSearchView()}
-          {this._displayLoadingView()}
-        </View>
-      );
+        );
+        break;
+
+      case VIEWS.RESULTS:
+        return (
+          <View style={styles.main_container}>
+            {this._renderSearchView()}
+            {this._renderResultView()}
+            {this._renderLoadingView()}
+          </View>
+        );
+        break;
+
+      case VIEWS.RESULT_NOT_FOUND: {
+        return (
+          <View style={styles.main_container}>
+            {this._renderSearchView()}
+            {this._renderEmptyResultView()}
+            {this._renderLoadingView()}
+          </View>
+        );
+      }
+
+      default:
+        return <View></View>
     }
   }
 }
@@ -151,18 +186,32 @@ const styles = StyleSheet.create ({
   main_container : {
     flex : 1,
     flexDirection : 'column',
-    padding : 5
+    //padding : 5
   },
 
   list_container : {
-    padding : 5
+    paddingHorizontal: 10,
   },
 
-  search_container : {
+  list_flat: {
+    paddingTop: 10,
+  },
+
+  search_container: {
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowRadius: 5,
+    shadowColor: '#000000',
+    shadowOpacity: 1.0,
+    elevation: 3,
     flexDirection : 'row',
     justifyContent: 'space-between',
     alignContent : 'center',
-    marginBottom : 10
+    // marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#fff',
   },
 
   textinput : {
@@ -189,12 +238,11 @@ const styles = StyleSheet.create ({
     position: 'absolute',
     left: 0,
     right: 0,
-    top: 100,
+    top: 45,
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    // borderWidth: 3,
-    // borderColor:'red',
+    // backgroundColor: '#a9a9a9',
   },
 
 

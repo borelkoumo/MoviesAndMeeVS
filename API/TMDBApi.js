@@ -19,10 +19,10 @@ export function getFilmsFromApiWithSearchedText  (text, page) {
         console.log('Mon erreur dans getFilmsFromApiWithSearchedText= '+error)
       });
 }
-
-export function getImageFromApi (posterPath) {
+export function getImageFromApi(posterPath, size = 'w300') {
   if(posterPath) {
-    return 'https://image.tmdb.org/t/p/w300' + posterPath;
+
+    return 'https://image.tmdb.org/t/p/' + size + posterPath;
   }
   else {
     return null;

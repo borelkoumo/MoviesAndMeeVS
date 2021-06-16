@@ -8,10 +8,10 @@ class EmptyResultView extends React.Component {
 
   render() {
     const searchedText = this.props.searchedText;
-    // {debugger}
+
     return (
       <View style={styles.main_container_empty}>
-        <Image style={styles.image} source={require("../assets/search.png")} />
+        <Image style={styles.image} source={require("../assets/not-found.png")} />
         <Text style={styles.title}> Aucun resultat</Text>
         <Text style={styles.subtitle}>Oups ! Aucun titre correspondant à "{searchedText}"</Text>
       </View>
@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
 
     image : {
       resizeMode : "cover",
-      height : 200,
-      width : 200,
+      height: 100,
+      width: 100,
       marginBottom : 50,
     },
 

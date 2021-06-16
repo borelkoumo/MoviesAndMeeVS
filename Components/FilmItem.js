@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
   main_container : {
     flexDirection : "row",
     height : 190, // j'ai défini les tailles de mes containersheader_container ,  description_container  et   date_container avec le style flex ( flex: 3  ,  flex: 7  ,  flex: 1 ), donc avec des tailles dynamiques. Cela n'a pas vraiment d'intérêt, puisque la taille de mes items FilmItem est statique, elle ne change pas en fonction de l'écran :  height: 190. Mais, au moins, cela vous donne une idée du champ des possibilités.
-    marginBottom : 20,
   },
 
   view_image : {

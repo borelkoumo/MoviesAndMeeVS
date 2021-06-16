@@ -1,0 +1,60 @@
+{
+    "adult": false,
+    "backdrop_path": "/xySCWwZVuU03xOsJfs1Qk8yG2DF.jpg",
+    "belongs_to_collection": null,
+    "budget": 0,
+    "genres": [
+        {
+            "id": 18,
+            "name": "Drame"
+        },
+        {
+            "id": 10749,
+            "name": "Romance"
+        }
+    ],
+    "homepage": "http://www.testthefilm.com/",
+    "id": 226979,
+    "imdb_id": "tt2407380",
+    "original_language": "en",
+    "original_title": "Test",
+    "overview": "San Francisco 1985. Frankie est un jeune danseur qui vient d’intégrer une des plus prestigieuses troupes de danse contemporaine de la ville. Il fait la connaissance de Todd, un des danseurs de la troupe. Leur rencontre ne tarde pas à dépasser le cadre de la danse. Des manifestations contre la communauté gay voient le jour. Elles sont liées à la panique créée par la maladie du VIH que l'on vient de découvrir. Ensemble, Frankie et Todd évolueront dans ces événements hostiles mais aussi parfois plein d’espoir.",
+    "popularity": 4.799,
+    "poster_path": "/tQBUPALd5JgeNfSubgzyPxc0e9F.jpg",
+    "production_companies": [
+        {
+            "id": 17275,
+            "logo_path": null,
+            "name": "Gloss Studio",
+            "origin_country": ""
+        },
+        {
+            "id": 17276,
+            "logo_path": "/e5ilLnhsr7wh84YnwuABfQhlhdq.png",
+            "name": "Serious Productions",
+            "origin_country": "US"
+        }
+    ],
+    "production_countries": [
+        {
+            "iso_3166_1": "US",
+            "name": "United States of America"
+        }
+    ],
+    "release_date": "2013-06-29",
+    "revenue": 0,
+    "runtime": 79,
+    "spoken_languages": [
+        {
+            "english_name": "English",
+            "iso_639_1": "en",
+            "name": "English"
+        }
+    ],
+    "status": "Released",
+    "tagline": "",
+    "title": "San Francisco 1985",
+    "video": false,
+    "vote_average": 6.6,
+    "vote_count": 105
+}
