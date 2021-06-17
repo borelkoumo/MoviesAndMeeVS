@@ -5,6 +5,7 @@ import EmptyResultView from './EmptyResultView'
 import SearchHome from './SearchHome'
 import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi.js'
 import { getSeparator } from './ListSeparator';
+import { connect } from "react-redux"
 
 const VIEWS = { 'HOME': 1, "RESULTS": 2, "RESULT_NOT_FOUND": 3 };
 Object.freeze(VIEWS);
@@ -52,7 +53,7 @@ class Search extends React.Component {
     console.log('DANS _loadNextFilms et BEFORE getFilmsFromApiWithSearchedText');
     getFilmsFromApiWithSearchedText(this.searchedText, this.currentPage+1).then(
       (data) => {
-        //console.log('data = '+data);
+        console.log('data = ' + data.results.map((item) => item.id).join(' / '));
         this.currentPage = data.page;
         this.totalPages = data.total_pages;
         const films = [...this.state.films, ...data.results];
@@ -79,6 +80,16 @@ class Search extends React.Component {
     console.log('Display film with ID = ' + filmID);
     this.props.navigation.navigate("FilmDetail", { filmID: filmID })
   };
+
+  _toggleFavorite = (film) => {
+    // Définition de notre action ici
+    const action = {
+      type: 'TOOGLE_FAVORITE',
+      value: film
+    };
+    //debugger
+    this.props.dispatch(action);
+  }
 
   _renderLoadingView() {
     console.log('_renderLoadingView');
@@ -128,7 +139,12 @@ class Search extends React.Component {
         style={styles.list_flat}
         data={this.state.films}
         renderItem={({ item }) =>
-          <FilmItem film={item} displayDetailsForFilm={this._displayDetailsForFilm} />
+          <FilmItem
+            film={item}
+            isFavoriteFilm={this.props.favoritesFilms.findIndex(currentItem => currentItem.id === item.id) === -1 ? false : true}
+            displayDetailsForFilm={this._displayDetailsForFilm}
+            toggleFavorite={this._toggleFavorite}
+          />
         }
         onEndReachedThreshold={0.8}
         onEndReached={() => {
@@ -136,8 +152,9 @@ class Search extends React.Component {
             this._loadNextFilms();
           }
         }}
-        keyExtractor={(item, index) => { item.id.toString() }}
+        keyExtractor={(item, index) => { return item.id.toString() }}
         ItemSeparatorComponent={getSeparator}
+        extraData={this.props.favoritesFilm}
       />
     </View>
   }
@@ -249,4 +266,10 @@ const styles = StyleSheet.create ({
 
 })
 
-export default Search;
+function mapStateToProps(state) {
+  return {
+    favoritesFilms: state.favoritesFilms
+  }
+}
+
+export default connect(mapStateToProps)(Search);

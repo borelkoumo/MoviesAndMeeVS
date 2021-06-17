@@ -12,13 +12,13 @@ export function getFilmsFromApiWithSearchedText  (text, page) {
     return fetch(url)
       .then((response) => {
         const json = response.json();
-        console.log(json);
         return json;
       })
       .catch((error) => {
         console.log('Mon erreur dans getFilmsFromApiWithSearchedText= '+error)
       });
 }
+
 export function getImageFromApi(posterPath, size = 'w300') {
   if(posterPath) {
 

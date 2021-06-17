@@ -1,8 +1,9 @@
 import React from 'react';
 import moment from 'moment'
 import numeral from 'numeral';
-import { StyleSheet, View, Text, ActivityIndicator, ScrollView, Image } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { getFilmDetailFromApi, getImageFromApi } from '../API/TMDBApi';
+import { connect } from 'react-redux';
 
 class FilmDetail extends React.Component {
   constructor(props) {
@@ -23,6 +24,10 @@ class FilmDetail extends React.Component {
     });
   }
 
+  componentDidUpdate() {
+    console.log('FilmDetail componentDidUpdate');
+  }
+
   _displayFilm() {
     const film = this.state.film;
     if (film != undefined) {
@@ -32,7 +37,12 @@ class FilmDetail extends React.Component {
             style={styles.image}
             source={{ uri: getImageFromApi(film.backdrop_path, 'w500') }}
           />
+          <View style={styles.infos_films}>
           <Text style={styles.title_text}>{film.title}</Text>
+          <TouchableOpacity style={styles.actions} onPress={() => { this._toggleFavorite() }}>
+            {this._displayFavoriteImage()}
+          </TouchableOpacity>
+            {/* <Button title='Favoris' onPress={() => this._toggleFavorite()}></Button> */}
           <Text style={styles.description_text}>{film.overview}</Text>
           <Text style={styles.default_text}>Sorti le {moment(new Date(film.release_date)).format('DD/MM/YYYY')}</Text>
           <Text style={styles.default_text}>Note : {film.vote_average} / 10</Text>
@@ -45,12 +55,42 @@ class FilmDetail extends React.Component {
           <Text style={styles.default_text}>Companie(s) : {film.production_companies.map(function (company) {
             return company.name;
           }).join(" / ")}
-          </Text>
+            </Text>
+          </View>
         </ScrollView>
       )
     }
     else {
 
+    }
+  }
+
+  _toggleFavorite() {
+    // Définition de notre action ici
+    const action = {
+      type: 'TOOGLE_FAVORITE',
+      value: this.state.film
+    };
+    // console.log(this.state.film);
+    this.props.dispatch(action);
+  }
+
+  _displayFavoriteImage() {
+    const favoritesFilms = this.props.favoritesFilms;
+    const currentFilm = this.state.film;
+    // debugger
+    const index = favoritesFilms.findIndex((item) => item.id === currentFilm.id);
+    if (index !== -1) {
+      return (
+        <Image style={styles.image_favorite}
+          source={require('../assets/ic_favorite.png')} />
+      )
+    }
+    else {
+      return (
+        <Image style={styles.image_favorite}
+          source={require('../assets/ic_favorite_border.png')} />
+      )
     }
   }
 
@@ -78,7 +118,7 @@ class FilmDetail extends React.Component {
 
 const styles = StyleSheet.create({
   main_container : {
-    flex : 1,
+    flex: 1,
   },
   loading_container: {
     position: 'absolute',
@@ -88,15 +128,26 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    // borderWidth: 3,
-    // borderColor:'red',
   },
   scrollview_container: {
-    flex: 1
+    flex: 1,
+  },
+  infos_films: {
+    padding: 10,
   },
   image: {
-    height: 169,
-    margin: 5
+    height: 300,
+    margin: 5,
+  },
+  actions: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 5,
+  },
+  image_favorite: {
+    width: 30,
+    height: 30,
   },
   title_text: {
     fontWeight: 'bold',
@@ -114,7 +165,8 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: '#666666',
     margin: 5,
-    marginBottom: 15
+    marginBottom: 15,
+    textAlign: 'justify',
   },
   default_text: {
     marginLeft: 5,
@@ -123,4 +175,10 @@ const styles = StyleSheet.create({
   }
 });
 
-export default FilmDetail;
+
+function mapStateToProps(state) {
+  return {
+    favoritesFilms: state.favoritesFilms
+  };
+}
+export default connect(mapStateToProps)(FilmDetail);

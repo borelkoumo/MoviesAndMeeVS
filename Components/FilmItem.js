@@ -7,8 +7,23 @@ class FilmItem extends React.Component {
     super(props);
   }
 
+  _displayFavoriteImage(isFavoriteFilm) {
+    if (isFavoriteFilm) {
+      return (
+        <Image style={styles.image_favorite}
+          source={require('../assets/ic_favorite.png')} />
+      )
+    }
+    else {
+      return (
+        <Image style={styles.image_favorite}
+          source={require('../assets/ic_favorite_border.png')} />
+      )
+    }
+  }
+
   render() {
-    const {film, displayDetailsForFilm} = this.props;
+    const { film, isFavoriteFilm, displayDetailsForFilm, toggleFavorite} = this.props;
     //debugger;
     let releaseDate = "Indisponible";
     if (film.release_date != "") {
@@ -26,6 +41,9 @@ class FilmItem extends React.Component {
 
         <View style={styles.view_details}>
           <View style={styles.view_details_header}>
+            <TouchableOpacity style={styles.favorite_film} onPress={() => { toggleFavorite(film) }}>
+              {this._displayFavoriteImage(isFavoriteFilm)}
+            </TouchableOpacity>
             <Text style={styles.title}> {film.title}</Text>
             <Text style={styles.vote}> {film.vote_average}</Text>
           </View>
@@ -53,7 +71,7 @@ const styles = StyleSheet.create({
   },
 
   view_image : {
-    marginRight : 10,
+    marginRight : 5,
   },
 
   view_details : {
@@ -81,6 +99,15 @@ const styles = StyleSheet.create({
     height : 190,
     width : 120,
     backgroundColor : "grey",
+  },
+
+  favorite_film: {
+    marginRight : 10,
+  },
+
+  image_favorite: {
+    width: 25,
+    height: 25,
   },
 
   title : {
