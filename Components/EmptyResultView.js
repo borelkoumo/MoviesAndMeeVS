@@ -1,5 +1,6 @@
 import React from 'react';
 import {StyleSheet, View, Text, Image} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 class EmptyResultView extends React.Component {
   constructor(props){
@@ -11,7 +12,8 @@ class EmptyResultView extends React.Component {
 
     return (
       <View style={styles.main_container_empty}>
-        <Image style={styles.image} source={require("../assets/not-found.png")} />
+        <Ionicons name={'alert-circle'} size={100} color={'#000'} />
+        {/* <Image style={styles.image} source={require("../assets/not-found.png")} /> */}
         <Text style={styles.title}> Aucun resultat</Text>
         <Text style={styles.subtitle}>Oups ! Aucun titre correspondant à "{searchedText}"</Text>
       </View>

@@ -4,6 +4,7 @@ import numeral from 'numeral';
 import { StyleSheet, View, Text, ActivityIndicator, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { getFilmDetailFromApi, getImageFromApi } from '../API/TMDBApi';
 import { connect } from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 class FilmDetail extends React.Component {
   constructor(props) {
@@ -82,14 +83,12 @@ class FilmDetail extends React.Component {
     const index = favoritesFilms.findIndex((item) => item.id === currentFilm.id);
     if (index !== -1) {
       return (
-        <Image style={styles.image_favorite}
-          source={require('../assets/ic_favorite.png')} />
+        <Ionicons name='heart' size={styles.image_favorite.width} color={styles.image_favorite.color} />
       )
     }
     else {
       return (
-        <Image style={styles.image_favorite}
-          source={require('../assets/ic_favorite_border.png')} />
+        <Ionicons name='heart-outline' size={styles.image_favorite.width} color={styles.image_favorite.color} />
       )
     }
   }
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
   },
   image_favorite: {
     width: 30,
-    height: 30,
+    color: '#000'
   },
   title_text: {
     fontWeight: 'bold',

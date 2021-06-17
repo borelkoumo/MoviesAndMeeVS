@@ -1,6 +1,7 @@
 import React from "react"
 import {StyleSheet, View, Text, Image, TouchableOpacity } from "react-native"
 import {getImageFromApi} from '../API/TMDBApi.js'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 class FilmItem extends React.Component {
   constructor(props) {
@@ -10,14 +11,12 @@ class FilmItem extends React.Component {
   _displayFavoriteImage(isFavoriteFilm) {
     if (isFavoriteFilm) {
       return (
-        <Image style={styles.image_favorite}
-          source={require('../assets/ic_favorite.png')} />
+        <Ionicons name='heart' size={styles.image_favorite.width} color={styles.image_favorite.color} />
       )
     }
     else {
       return (
-        <Image style={styles.image_favorite}
-          source={require('../assets/ic_favorite_border.png')} />
+        <Ionicons name='heart-outline' size={styles.image_favorite.width} color={styles.image_favorite.color} />
       )
     }
   }
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
 
   image_favorite: {
     width: 25,
-    height: 25,
+    color: '#000'
   },
 
   title : {
